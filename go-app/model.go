@@ -2,8 +2,12 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/joho/godotenv"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Post struct {
@@ -17,7 +21,22 @@ var Db *sql.DB
 
 func init() {
 	var err error
-	Db, err = sql.Open("sqlite3", "./example.sqlite")
+
+	err = godotenv.Load(".env")
+	if err != nil {
+		panic("Error loading .env file")
+	}
+
+	// dsn := "root:root@tcp(127.0.0.1:3306)/react-go-app?charset=utf8mb4&parseTime=True&loc=Local"
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASS")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	dbname := os.Getenv("DB_NAME")
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, port, dbname)
+
+	Db, err = sql.Open("mysql", dsn)
 
 	/* nilはGo言語ならではの値で、ポインタやインターフェース、
 	   ライス、マップ、チャネルなどのデータ型のゼロ値を表すために使用される。 */
@@ -25,10 +44,18 @@ func init() {
 		panic(err)
 	}
 
+	// データベースに接続できているか確認する
+	err = Db.Ping()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fmt.Println("Successfully connected to database")
+
 }
 
 func getPosts(limit int) (posts []Post, err error) {
-	stmt := "SELECT id, title, body, author FROM posts LIMIT $1"
+	stmt := "SELECT id, title, body, author FROM posts LIMIT ?"
 	rows, err := Db.Query(stmt, limit)
 	if err != nil {
 		return
@@ -49,7 +76,7 @@ func getPosts(limit int) (posts []Post, err error) {
 // retrieve get a specified post.
 func retrieve(id int) (post Post, err error) {
 	post = Post{}
-	stmt := "SELECT id, title, body, author FROM posts WHERE id = $1"
+	stmt := "SELECT id, title, body, author FROM posts WHERE id = ?"
 	err = Db.QueryRow(stmt, id).Scan(&post.Id, &post.Title, &post.Body, &post.Author)
 	return
 }
@@ -78,14 +105,14 @@ func (post *Post) create() (err error) {
 
 // update a specified post.
 func (post *Post) update() (err error) {
-	stmt := "UPDATE posts set title = $1, body = $2, author = $3 WHERE id = $4"
+	stmt := "UPDATE posts set title = ?, body = ?, author = ? WHERE id = ?"
 	_, err = Db.Exec(stmt, post.Title, post.Body, post.Author, post.Id)
 	return
 }
 
 // delete a specified post.
 func (post *Post) delete() (err error) {
-	stmt := "DELETE FROM posts WHERE id = $1"
+	stmt := "DELETE FROM posts WHERE id = ?"
 	_, err = Db.Exec(stmt, post.Id)
 	return
 }
