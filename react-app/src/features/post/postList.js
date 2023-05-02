@@ -67,6 +67,7 @@ const PostList = () => {
   }, [currentPost]);
 
   // Modalが開いているかどうか管理するstate
+  // openが変数、setOpenが関数
   const [open, setOpen] = React.useState(false);
   // 入力中の内容を管理するstate
   const [inputPost, setInputPost] = React.useState({
