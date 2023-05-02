@@ -94,6 +94,7 @@ func handlePost(w http.ResponseWriter, r *http.Request) (err error) {
 	contentBody := make([]byte, contentLength)
 	r.Body.Read(contentBody)
 
+	// ここがlaravelで言うモデルで、model.goとつながる。
 	var post Post
 	err = json.Unmarshal(contentBody, &post)
 	if err != nil {

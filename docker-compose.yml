@@ -1,36 +1,37 @@
 version: "3.9"
 
 services:
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - ./docker/mysql/mysql_data:/var/lib/mysql
+      - ./docker/mysql/conf.d:/etc/mysql/conf.d
+      - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d
+      - './db/my.cnf:/etc/mysql/conf.d/my.cnf'
+    # environment:
+    #   MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+    #   MYSQL_USER: ${DB_USER}
+    #   MYSQL_PASSWORD: ${DB_PASS}
+    #   MYSQL_DATABASE: ${DB_NAME}
+    #   MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+    #   TZ: 'Asia/Tokyo'
+    env_file:
+      - .env
   go-app:
-    build:
-      context: ./go-app
+    build: ./go-app
     ports:
       - "8080:8080"
-    volumes:
-      # - ./go-app/example.sqlite:/app/example.sqlite
-      - ./go-app:/app/go
-    #environment:
-      #- DATABASE_URL=example.sqlite
-
+    # depends_on:
+    #   - mysql
+    # environment:
+    #   DB_HOST: mysql
+    #   DB_PORT: ${DB_PORT}
+    #   DB_USER: ${DB_USER}
+    #   DB_PASSWORD: ${DB_PASS}
+    #   DB_NAME: ${DB_NAME}
   react-app:
-    build:
-      context: ./react-app
+    build: ./react-app
     ports:
       - "3000:3000"
-  mysql:
-    build:
-      context: .
-      dockerfile: ./database/Dockerfile
-    container_name: mysql_container
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: react-go-app
-      TZ: 'Asia/Tokyo'
-    volumes:
-      - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d
-      - ./docker/mysql/conf.d:/etc/mysql/conf.d
-      - ./docker/mysql/mysql_data:/var/lib/mysql
-    ports:
-    - 3306:3306
-    links:
-      - go-app
+    # depends_on:
+    #   - go-app
