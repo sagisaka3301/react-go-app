@@ -162,8 +162,10 @@ const PostList = () => {
                         {post.id} - {post.title}
                       </ListItemButton>
                     </Link>
+                    {/* <p></p> */}
                     {/* ListItemSecondaryActionコンポーネントは右側にアクションを表示する。 */}
                     <ListItemSecondaryAction>
+                    {new Date(post.updated_at).toLocaleDateString()}
                       <IconButton
                         type="button"
                         edge="end"

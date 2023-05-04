@@ -19,5 +19,7 @@ CREATE TABLE `posts` (
     `title` varchar(255) NOT NULL DEFAULT '',
     `body` varchar(255) NOT NULL DEFAULT '',
     `author` varchar(255) NOT NULL DEFAULT '',
+    `created_at` datetime NOT NULL,
+    `updated_at` datetime NOT NULL,
     PRIMARY KEY (`id`)
 );
