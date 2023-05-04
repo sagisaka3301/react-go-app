@@ -63,7 +63,9 @@ export const postSlice = createSlice({
       id: null,
       title: '',
       body: '',
-      author: ''
+      author: '',
+      created_at: '',
+      updated_at: ''
     },
     posts: []
   },

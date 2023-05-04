@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 
@@ -11,10 +12,12 @@ import (
 )
 
 type Post struct {
-	Id     int    `json:"id"`
-	Title  string `json:"title"`
-	Body   string `json:"body"`
-	Author string `json:"author"`
+	Id        int       `json:"id"`
+	Title     string    `json:"title"`
+	Body      string    `json:"body"`
+	Author    string    `json:"author"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 var Db *sql.DB
@@ -55,7 +58,7 @@ func init() {
 }
 
 func getPosts(limit int) (posts []Post, err error) {
-	stmt := "SELECT id, title, body, author FROM posts LIMIT ?"
+	stmt := "SELECT id, title, body, author, created_at, updated_at FROM posts LIMIT ?"
 	rows, err := Db.Query(stmt, limit)
 	if err != nil {
 		return
@@ -63,7 +66,7 @@ func getPosts(limit int) (posts []Post, err error) {
 
 	for rows.Next() {
 		post := Post{}
-		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.Author)
+		err = rows.Scan(&post.Id, &post.Title, &post.Body, &post.Author, &post.CreatedAt, &post.UpdatedAt)
 		if err != nil {
 			return
 		}
@@ -76,8 +79,8 @@ func getPosts(limit int) (posts []Post, err error) {
 // retrieve get a specified post.
 func retrieve(id int) (post Post, err error) {
 	post = Post{}
-	stmt := "SELECT id, title, body, author FROM posts WHERE id = ?"
-	err = Db.QueryRow(stmt, id).Scan(&post.Id, &post.Title, &post.Body, &post.Author)
+	stmt := "SELECT id, title, body, author, created_at, updated_at FROM posts WHERE id = ?"
+	err = Db.QueryRow(stmt, id).Scan(&post.Id, &post.Title, &post.Body, &post.Author, &post.CreatedAt, &post.UpdatedAt)
 	return
 }
 
@@ -90,8 +93,8 @@ func (post *Post) create() (err error) {
 }*/
 
 func (post *Post) create() (err error) {
-	stmt := "INSERT INTO posts (title, body, author) values (?, ?, ?)"
-	res, err := Db.Exec(stmt, post.Title, post.Body, post.Author)
+	stmt := "INSERT INTO posts (title, body, author, created_at, updated_at) values (?, ?, ?, ?, ?)"
+	res, err := Db.Exec(stmt, post.Title, post.Body, post.Author, time.Now(), time.Now())
 	if err != nil {
 		return err
 	}
@@ -100,13 +103,16 @@ func (post *Post) create() (err error) {
 		return err
 	}
 	post.Id = int(lastInsertId)
+	post.CreatedAt = time.Now()
+	post.UpdatedAt = time.Now()
 	return nil
 }
 
 // update a specified post.
 func (post *Post) update() (err error) {
-	stmt := "UPDATE posts set title = ?, body = ?, author = ? WHERE id = ?"
-	_, err = Db.Exec(stmt, post.Title, post.Body, post.Author, post.Id)
+	stmt := "UPDATE posts set title = ?, body = ?, author = ?, updated_at = ? WHERE id = ?"
+	_, err = Db.Exec(stmt, post.Title, post.Body, post.Author, time.Now(), post.Id)
+	post.UpdatedAt = time.Now()
 	return
 }
 

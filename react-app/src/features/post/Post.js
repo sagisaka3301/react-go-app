@@ -41,6 +41,7 @@ const Post = () => {
         <Box sx={{ width: '100%', marginTop: '20px' }}>
           <Typography variant="h3" component="h2">{currentPost.title}</Typography>
           <Typography variant="h5" component="div" style={styles.author}>{currentPost.author}</Typography>
+          <Typography variant="p" component="div">{new Date(currentPost.updated_at).toLocaleDateString()}</Typography>
           <article>
             <Typography variant="body1" style={styles.body}>{currentPost.body}</Typography>
           </article>
