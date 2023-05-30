@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Header from './features/common/Header';
+import Auth from './features/auth/loginPage';
 import Post from './features/post/Post';
 import PostList from './features/post/postList';
 
@@ -13,6 +14,7 @@ function App() {
           <Routes>
             <Route path="/" element={<PostList />} />
             <Route path="/posts/:postId" element={<Post />} />
+            <Route path="/auth" element={<Auth />} />
           </Routes>
         </BrowserRouter>
       </main>
