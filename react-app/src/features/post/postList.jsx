@@ -76,6 +76,58 @@ const PostList = () => {
     body: "",
     author: ""
   });
+
+  // 入力エラー文
+  const errorMessages = {
+    title: "タイトルは必須です",
+    body: "本文は必須です",
+    author: "著者は必須です",
+  }
+
+  const [formErrors, setFormErrors] = React.useState({});
+
+  // フォームのバリデーションを行う関数
+  const validateForm = () => {
+    const errors = {};
+
+    // 入力値のチェックとエラーメッセージの設定
+    Object.keys(inputPost).forEach((field) => {
+      if (!inputPost[field] || inputPost[field].trim() === "") {
+        errors[field] = errorMessages[field];
+      }
+    });
+
+    // エラーメッセージを更新
+    setFormErrors(errors);
+
+    // エラーメッセージの有無を返す
+    return Object.keys(errors).length === 0;
+  };
+
+  /* 
+  Cannot read properties of null (reading 'trim')
+  TypeError: Cannot read properties of null (reading 'trim')のエラーが出た。*/
+  
+  /*
+  const validateForm = () => {
+    const errors = {};
+  
+    Object.keys(inputPost).forEach((field) => {
+      if (inputPost[field].trim() === "") {
+        errors[field] = errorMessages[field];
+      }
+    });
+  
+    setFormErrors(errors);
+  
+    if (Object.keys(errors).length > 0) {
+      return false;
+    }
+  
+    return true;
+  };
+  */
+
   // 更新用にモーダルを起動しているかどうかを管理するstate
   const [isEdit, setIsEdit] = React.useState(false);
 
@@ -123,6 +175,13 @@ const PostList = () => {
 
   // CREATEボタンクリック時の処理
   const handleClickCreate = (e) => {
+
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     dispatch(fetchAsyncNewPost(inputPost));
     setInputPost({
       id: null,
@@ -131,6 +190,7 @@ const PostList = () => {
       author: ""
     });
     setOpen(false);
+    handleClose();
   }
   // UPDATEボタンクリック時の処理
   const handleClickUpdate = (e) => {
@@ -217,6 +277,8 @@ const PostList = () => {
                 required
                 fullWidth
                 onChange={handleInputTitle}
+                error={Boolean(formErrors.title)}
+                helperText={formErrors.title}
               />
               <TextField
                 id="body"
@@ -227,6 +289,8 @@ const PostList = () => {
                 required
                 fullWidth
                 onChange={handleInputBody}
+                error={Boolean(formErrors.body)}
+                helperText={formErrors.body}
               />
               <TextField
                 id="author"
@@ -234,6 +298,8 @@ const PostList = () => {
                 value={inputPost.author}
                 required fullWidth
                 onChange={handleInputAuthor}
+                error={Boolean(formErrors.author)}
+                helperText={formErrors.author}
               />
               <Stack direction="row" spacing={2}>
                 <Button
